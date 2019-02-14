@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req,res,next){
-	req.app.get('controllers').main.index(req,res,next);
+	req.app.locals.controllers.main.index(req,res,next);
 });
 
 /* GET users listing. */
