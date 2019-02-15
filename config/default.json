@@ -1,0 +1,18 @@
+{
+    "development": {
+        "config_id": "development",
+        "app_name": "Scan Tracker",
+        "app_desc": "Tracks the status of package scan results",
+        "node_port": 3000,
+        "json_indentation": 4,
+        "database": "app.dev.db"
+    },
+    "production": {
+        "config_id": "production",
+        "app_name": "Scan Tracker",
+        "app_desc": "Tracks the status of package scan results",
+        "node_port": 8080,
+        "json_indentation": 4,
+        "database": "app.prod.db"
+    }
+}

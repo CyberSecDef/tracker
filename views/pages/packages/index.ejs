@@ -1,0 +1,83 @@
+<%- include(app.locals.__basedir + '/views/layouts/head'); -%>
+	<body>
+<%- include(app.locals.__basedir + '/views/layouts/topnav'); -%>
+		<div class="container-fluid">
+			<div class="row">
+				<%- include(app.locals.__basedir +'/views/layouts/sidebar'); -%>
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+					<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+						<h1 class="h2">Packages</h1>
+					</div>
+					
+					The following packages are being monitored:
+                    <div class="input-group col-3 offset-9 mb-3">
+                        
+                    <input type="text" class="form-control" placeholder="Package Name" aria-label="Package Name" aria-describedby="button-addon2" id="txtPackageName"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btnAddPackage">Add</button>
+                    </div>
+                        
+                    </div>
+
+                    <table class="table table-striped">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Creation Date</th>
+                            <th>Hosts</th>
+                        </tr>
+                        
+                        <% for (var i = 0; i < pkgs.length; i++) { %>
+                        <tr
+                            data-id="<%- pkgs[i].id %>"
+                        >
+                            <td>
+                                <%= i+1 %>
+                                <button 
+                                    class="btn btn-sm btn-danger pkgDel" 
+                                    type="button"
+                                >Del</button>
+                            </td>
+                            <td><%= pkgs[i].name %></td>
+                            <td><%= pkgs[i].createdAt.toUTCString() %></td>
+                            <td></td>
+                        </tr>
+                        <% } %>
+
+                    </table>
+				</main>
+			</div>
+		</div>
+        <script>
+            $("button.pkgDel").on('click', function(){
+                data = {
+                    id : $(this).parent().parent().data('id'),
+                }
+
+                $.ajax({
+                    type: "DELETE",
+                    url: '/packages',
+                    data: data,
+                    success: function(){ 
+                        window.location.href = '/packages/' 
+                    }
+                });
+
+            });
+            $('button#btnAddPackage').on('click',()=>{
+                data = {
+                    name : $('input#txtPackageName').val()
+                };
+                $.ajax({
+                    type: "POST",
+                    url: '/packages',
+                    data: data,
+                    success: function(){ 
+                        window.location.href = '/packages/' 
+                    }
+                });
+            })
+        </script>
+	</body>
+</html>
