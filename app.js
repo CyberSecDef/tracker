@@ -30,6 +30,7 @@ global.sequelize = new Sequelize( config.get('development.database'), '', '', {
     host: 'localhost',
     dialect: 'sqlite',
     operatorsAliases: false,
+    transactionType: 'IMMEDIATE',
     pool: {
         max: 5,
         min: 0,

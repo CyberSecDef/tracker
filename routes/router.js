@@ -50,8 +50,11 @@ router.post('/packages/:packageId/hosts',  upload.single('hostCsv'), function(re
     const uploadExcel = req.file;    
     const buffer = uploadExcel.buffer;
     req.fileContent = buffer.toString();
-    
     req.app.locals.controllers.packages.addHosts(req,res,next);
+});
+
+router.put('/packages/:packageId/host',  function(req, res, next) {
+    req.app.locals.controllers.packages.updateHost(req,res,next);
 });
 
 module.exports = router;

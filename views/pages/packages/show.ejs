@@ -112,7 +112,9 @@
         <script>
 $(function() {
     feather.replace()
-    $('table.dataTables').DataTable();
+    $('table.dataTables').DataTable({
+        "pageLength": 50
+    });
     
     $(".list-group-item").on("click", function() {
         if( $(".feather", this).hasClass("feather-chevron-right") ){

@@ -18,15 +18,20 @@
             </div>
         </div>
     </div>
-    
-    <table class="table table-striped dataTables">
+    <style>
+        table#hostTable td {
+            padding:0px;
+        }
+    </style>
+    <table class="table table-striped table-hover tbl-sm" id="hostTable">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Type</th>
                 <th>Hostname</th>
                 <th>IP</th>
+                <th>MAC</th>
                 <th>OS</th>
-                <th>Manufacturer</th>
+                <th>Vendor</th>
                 <th>Model</th>
                 <th>Firmware</th>
                 <th>Building</th>
@@ -34,6 +39,21 @@
             </tr>
         </thead>
         <tbody>
+        <% let i = 0; hosts.forEach( (h) => { i++;%>
+            <tr>
+                <td><%= h.type %></td>
+                <td><%= h.hostname %></td>
+                <td><%= h.ip %></td>
+                <td><%= h.mac %></td>
+                <td><%= h.os %></td>
+                <td><%= h.vendor %></td>
+                <td><%= h.model %></td>
+                <td><%= h.firmware %></td>
+                <td><%= h.building %></td>
+                <td><%= h.room %></td>
+            </tr>
+        <% }); %>
+
         
         </tbody>
     </table>
@@ -41,8 +61,59 @@
 
 <script>
 let hosts = {
-    dropArea : document.getElementById("drop-area"),
+    init(){
+        var table = $('#hostTable').DataTable({
+            "pageLength": 50
+        });
+
+        table.MakeCellsEditable({
+            "columns": [0,2,3,4,5,6,7,8,9,10],
+            "inputTypes": [
+                {
+                    "column":0, 
+                    "type": "list",
+                    "options":[
+                        { "value": "", "display": "" },
+                        { "value": "Server", "display": "Server" },
+                        { "value": "Workstation", "display": "Workstation" },
+                        { "value": "Laptop", "display": "Laptop" },
+                        { "value": "Printer", "display": "Printer" },
+                        { "value": "Other", "display": "Other" },
+                    ]
+                }
+            ],
+            "onUpdate": (updatedCell, updatedRow, oldValue) => {
+                console.log(updatedCell.data())
+                console.log(updatedRow.data())
+                console.log(oldValue)
+                if( updatedCell.data() !== oldValue){
+                    let data = {
+                        hostname : updatedRow.data()[1],
+                        packageId : <%- pkg.id %>,
+                        type: updatedRow.data()[0],
+                        ip : updatedRow.data()[2],
+                        mac : updatedRow.data()[3],
+                        os : updatedRow.data()[4],
+                        vendor : updatedRow.data()[5],
+                        model : updatedRow.data()[6],
+                        firmware : updatedRow.data()[7],
+                        building : updatedRow.data()[8],
+                        room : updatedRow.data()[9],
+                    }
+
+                    $.ajax({
+                        type: "PUT",
+                        url: '/packages/<%- pkg.id %>/host',
+                        data: data,
+                        success: function(){ 
+                            window.location.href = '/packages/<%- pkg.id %>' 
+                        }
+                    });
+                }
+            }
+        });
+    }
 
 }
-
+hosts.init();
 </script>
