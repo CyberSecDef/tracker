@@ -1,0 +1,48 @@
+<div id="mainResourceHosts" class="">
+    <h2 class="h3">Hosts</h2>
+    
+    <div id="drop-area" class="w-100 alert alert-info" style="border:1px dashed grey">
+        <div class="row">
+            <div class="col-md-10">
+                Drop a CSV of hosts here.  At a minimum, the hostname needs to be listed in the CSV file.  This module will also parse the following fields:
+                <br />
+                Hostname, IP, MAC, Type, Vendor, Model, OS, Firmware, Building, Room
+
+                <div id="selCkl" style="font-weight:bold;"></div>
+            </div>
+            <div class="col-md-2" style="text-align:right;">
+                    <form  method="post" enctype="multipart/form-data" action="/packages/<%- pkg.id %>/hosts" id="hostsCsvForm">
+                        <input type="file" id="hostCsv" name="hostCsv">
+                        <input type="submit">
+                    </form>
+            </div>
+        </div>
+    </div>
+    
+    <table class="table table-striped dataTables">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hostname</th>
+                <th>IP</th>
+                <th>OS</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
+                <th>Firmware</th>
+                <th>Building</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+    </table>
+</div>
+
+<script>
+let hosts = {
+    dropArea : document.getElementById("drop-area"),
+
+}
+
+</script>

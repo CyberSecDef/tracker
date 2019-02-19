@@ -10,55 +10,133 @@
 						<h1 class="h2">Packages</h1>
 					</div>
 					
-					The following packages are being monitored:
-                    <div class="input-group col-3 offset-9 mb-3">
+                    <div class="input-group col-6 offset-6 mb-3">
+                        <input type="text" class="form-control"  placeholder="Package Acronym" aria-label="Package Acronym" id="txtPackageAcro"/>
+                        <input type="text" class="form-control"  placeholder="Package Name" aria-label="Package Name" id="txtPackageName"/>
                         
-                    <input type="text" class="form-control" placeholder="Package Name" aria-label="Package Name" aria-describedby="button-addon2" id="txtPackageName"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="btnAddPackage">Add</button>
-                    </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button" id="btnAddPackage" style="width:75px;">Add</button>
+                        </div>
                         
                     </div>
 
-                    <table class="table table-striped">
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Creation Date</th>
-                            <th>Hosts</th>
-                        </tr>
-                        
-                        <% for (var i = 0; i < pkgs.length; i++) { %>
-                        <tr
-                            data-id="<%- pkgs[i].id %>"
-                        >
-                            <td>
-                                <%= i+1 %>
-                                <button 
-                                    class="btn btn-sm btn-danger pkgDel" 
-                                    type="button"
-                                >Del</button>
-                            </td>
-                            <td><%= pkgs[i].name %></td>
-                            <td><%= pkgs[i].createdAt.toUTCString() %></td>
-                            <td></td>
-                        </tr>
-                        <% } %>
-
+                    <table class="table table-striped" id="tblPackages">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Acronym</th>
+                                <th>Name</th>
+                                <th>Creation Date</th>
+                                <th>Modified Date</th>
+                                <th>Hosts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (var i = 0; i < pkgs.length; i++) { %>
+                            <tr
+                                data-id="<%- pkgs[i].id %>"
+                            >
+                                <td>
+                                    <%= i+1 %>
+                                    <button 
+                                        class="btn btn-sm btn-danger pkgDel" 
+                                        type="button"
+                                    >Del</button>
+                                    
+                                    <button 
+                                        class="btn btn-sm btn-warning pkgEdit" 
+                                        type="button"
+                                    >Edit</button>
+                                    
+                                </td>
+                                <td>
+                                    <a href="/packages/<%= pkgs[i].id %>">
+                                        <%= pkgs[i].acronym %>
+                                    </a>
+                                </td>
+                                <td><%= pkgs[i].name %></td>
+                                <td><%= pkgs[i].createdAt.toUTCString() %></td>
+                                <td><%= pkgs[i].updatedAt.toUTCString() %></td>
+                                <td></td>
+                            </tr>
+                            <% } %>
+                        </tbody>
                     </table>
 				</main>
 			</div>
 		</div>
-        <script>
-            $("button.pkgDel").on('click', function(){
-                data = {
-                    id : $(this).parent().parent().data('id'),
-                }
+        
+<div class="modal" tabindex="-1" role="dialog" id="myModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary modal-save">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
+        <script>
+            $("button.pkgEdit").on('click', function(){
+                let id = $(this).parent().parent().data('id');
+                let acro = $(this).parent().parent().find('td:nth-child(2)').html();
+                let name = $(this).parent().parent().find('td:nth-child(3)').html();
+                $('#myModal').find('.modal-title').html(`Edit Package (${id})`);
+            
+                $('#myModal').find('div.modal-body').html(`<form>
+<div class="form-group row">
+<label for="inputAcro" class="col-sm-2 col-form-label">Acronym</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" id="inputAcro" value="${acro}">
+</div>
+</div>
+<div class="form-group row">
+<label for="inputName" class="col-sm-2 col-form-label">Name</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" id="inputName" value="${name}">
+</div>
+</div>
+</form>
+`);
+
+                $('#myModal').find('button.modal-save').on('click', function(){
+                    data = {
+                        "acro" : $('input#inputAcro').val(),
+                        "name" : $('input#inputName').val(),
+                    }
+                    
+                    console.log(data);
+                    $.ajax({
+                        type: "PUT",
+                        url: '/packages/' + id,
+                        data: data,
+                        success: function(){ 
+                            window.location.href = '/packages/' 
+                        }
+                    });
+                
+                })
+                
+                
+                $('#myModal').modal()
+
+                
+            });
+            
+            $("button.pkgDel").on('click', function(){
                 $.ajax({
                     type: "DELETE",
-                    url: '/packages',
-                    data: data,
+                    url: '/packages/' + $(this).parent().parent().data('id'),
                     success: function(){ 
                         window.location.href = '/packages/' 
                     }
@@ -67,6 +145,7 @@
             });
             $('button#btnAddPackage').on('click',()=>{
                 data = {
+                    acronym : $('input#txtPackageAcro').val(),
                     name : $('input#txtPackageName').val()
                 };
                 $.ajax({
@@ -78,6 +157,8 @@
                     }
                 });
             })
+            
+            $('table#tblPackages').DataTable();
         </script>
 	</body>
 </html>

@@ -13,7 +13,14 @@ const logger = require('morgan');
 const Sequelize = require('sequelize');
 const sqlite3 = require('sqlite3').verbose()
 const routes  = require('./routes/router');
+
+const multer = require('multer');
+const upload = multer({ dest: './uploads/' })
+
+
 const app = express();
+
+
 
 app.locals.__basedir = __dirname;
 app.locals.controllers = {};
@@ -39,6 +46,10 @@ glob.sync( './controllers/*.js' ).forEach( function( file ) {
 glob.sync( './models/*.js' ).forEach( function( file ) {
 	app.locals.models[ file.replace("./models/","").replace(".js","") ] = require( path.resolve( file ) );
 });
+
+
+
+
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
