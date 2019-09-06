@@ -139,6 +139,64 @@ module.exports = {
         })
           
         res.sendStatus(200)    
+    },
+    patchHost(req, res, next){
+        const shell = require('node-powershell');
+
+        let ps = new shell({
+            executionPolicy: 'Bypass',
+            noProfile: true
+        });
+        let cmd = `
+@{ 
+    "hostname" = "${req.body.hostname}".trim();
+    "os" = (gwmi win32_operatingSystem -ComputerName ${req.body.hostname.split('.')[0]} | select -expand caption).trim();
+    "ip" = (gwmi win32_NetworkAdapterConfiguration -computerName  ${req.body.hostname.split('.')[0]} | ? { $_.IPEnabled -eq 'true'} | select -first 1 -expand IPAddress).trim();
+    "mac" = (gwmi win32_NetworkAdapterConfiguration -computerName  ${req.body.hostname.split('.')[0]} | ? { $_.IPEnabled -eq 'true'} | select  -first 1 -expand MACAddress).trim();
+    "vendor" = (gwmi Win32_ComputerSystem -ComputerName ${req.body.hostname.split('.')[0]} | select -expand manufacturer).trim();
+    "model" = (gwmi Win32_ComputerSystem -ComputerName ${req.body.hostname.split('.')[0]} | select -expand model).trim();
+    "firmware" = (gwmi Win32_Bios -ComputerName ${req.body.hostname.split('.')[0]} | select -expand SMBIOSBIOSVersion).trim();
+} | convertTo-json
+        
+`;
+        
+        //res.send(cmd);
+        ps.addCommand(cmd)
+        
+        ps.invoke()
+            .then(output => {
+                let jsonOutput = JSON.parse( output );
+                if(jsonOutput.name !== 'PS_CMD_FAIL_ERROR'){
+                    req.app.locals.models.Hosts.sync({force: false}).then(() => {
+                        req.app.locals.models.Hosts.findAll( {where: {hostname: req.body.hostname, packageId : req.body.packageId}} ).then( (hosts) => {
+                            if(hosts){
+                                hosts.forEach( (h) => {
+                                    h.destroy();
+                                })
+                            }
+                        })
+                    }).then( () => {
+                        req.app.locals.models.Hosts.sync({force: false}).then(() => {
+                            req.app.locals.models.Hosts.create({
+                                hostname : jsonOutput.hostname,
+                                ip : jsonOutput.ip,
+                                mac : jsonOutput.mac,
+                                //type : req.body.type,
+                                vendor : jsonOutput.vendor,
+                                model : jsonOutput.model,
+                                firmware : jsonOutput.firmware,
+                                //building : req.body.building,
+                                //room : req.body.room,
+                                packageId : req.params.packageId
+                            });
+                        });
+                    })
+                }
+                
+                
+                // res.send( );
+                res.sendStatus(200);    
+            })
     }
 }
 

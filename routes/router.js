@@ -57,4 +57,8 @@ router.put('/packages/:packageId/host',  function(req, res, next) {
     req.app.locals.controllers.packages.updateHost(req,res,next);
 });
 
+router.patch('/packages/:packageId/host',  function(req, res, next) {
+    req.app.locals.controllers.packages.patchHost(req,res,next);
+});
+
 module.exports = router;

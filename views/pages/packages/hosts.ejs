@@ -42,7 +42,7 @@
         <% let i = 0; hosts.forEach( (h) => { i++;%>
             <tr>
                 <td><%= h.type %></td>
-                <td><%= h.hostname %></td>
+                <td class="hostname"><%= h.hostname %></td>
                 <td><%= h.ip %></td>
                 <td><%= h.mac %></td>
                 <td><%= h.os %></td>
@@ -64,6 +64,21 @@ let hosts = {
     init(){
         var table = $('#hostTable').DataTable({
             "pageLength": 50
+        });
+        
+        $('td.hostname').on('click', (e) => {
+        
+            $.ajax({
+                type: "PATCH",
+                url: '/packages/<%- pkg.id %>/host/',
+                data : {
+                    hostname : $(e.currentTarget).text()
+                },
+                success: function( r ){ 
+                    console.log(r);
+                    //window.location.href = '/packages/<%- pkg.id %>' 
+                }
+            });
         });
 
         table.MakeCellsEditable({
